@@ -27,7 +27,7 @@ int main(int argc, char **argv) {
     int k = atoi(argv[2]);
 
     char* filePath = new char[30];
-    sprintf(filePath, "input/%d.csv", cardinality);
+    sprintf(filePath, "input/%d/%d.csv", k, cardinality);
 
     char* line = NULL;
     size_t len = 0;
@@ -87,7 +87,19 @@ int main(int argc, char **argv) {
     cpu_time_used = ((double) (end - start)) / CLOCKS_PER_SEC;
     printf("Parallel took %f seconds to execute \n", cpu_time_used);
 
-    FILE *f = fopen("300_results.txt", "w");
+    int mismatched = 0;
+    for(int i=0; i<cardinality; i++)
+    {
+        if (classes[i] != classesParallel[i])
+        {
+            mismatched++;
+        }
+    }
+    printf("Number of mismatched: %d \n", mismatched);
+
+    char* outputFile = new char[30];
+    sprintf(outputFile, "results/%d.txt", cardinality);
+    FILE *f = fopen(outputFile, "ab+");
 
     for (int i=0; i<cardinality - 1; i++)
     {
@@ -95,7 +107,7 @@ int main(int argc, char **argv) {
     }
 
     fprintf(f,"%d", classes[cardinality - 1]);
-
     fclose(f);
+
     return 0;
 }

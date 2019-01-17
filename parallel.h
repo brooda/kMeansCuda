@@ -6,7 +6,7 @@
 #include <math.h>
 
 
-__global__ void GetNearestCentroid(int* d_ret, float* d_xs, float* d_ys, float* d_zs, float* d_centroidX, float* d_centroidY, float* d_centroidZ, int n, int k)
+__global__ void GetNearestCentroid(int* d_ret, float* d_xs, float* d_ys, float* d_zs, float* d_centroidX, float* d_centroidY, float* d_centroidZ, int n, int k, int* numberOfchanges)
 {
     int i = blockIdx.x * blockDim.x + threadIdx.x;
 
@@ -41,9 +41,15 @@ __global__ void GetNearestCentroid(int* d_ret, float* d_xs, float* d_ys, float* 
             }
         }
 
-        //printf("For point x: %f, y: %f, z: %f closest centroid is: %d with dist %f \n", x, y, z, minDistInd, minDist);
+        //printf("For point x: %f, y: %f, z: %
+        // f closest centroid is: %d with dist %f \n", x, y, z, minDistInd, minDist);
 
-        d_ret[i] = minDistInd;
+        if (d_ret[i] != minDistInd)
+        {
+            d_ret[i] = minDistInd;
+            atomicAdd(&numberOfchanges[0], 1);
+        }
+
     }
 }
 
@@ -129,11 +135,19 @@ int* kMeansParallel(int k, int n, float* xs, float* ys, float* zs, float* startC
     float* h_sumForCentroidsZ = new float[k];
     float* h_countsForCentroids = new float[k];
 
+    int* h_changesCount;
+    *h_changesCount = n/100 + 1;;
+    int* d_changesCount;
+    cudaMalloc((void**)&d_changesCount, sizeof(int));
 
-    // TODO: Continue till there are changes of classes (say, 0.01 of all samples is changing class)
-    for (int i=0; i<2; i++)
+
+    while(*h_changesCount > n/100)
     {
-        GetNearestCentroid<<<numberOfBlocks, blockSize>>>(d_ret, d_xs, d_ys, d_zs, d_centroidX, d_centroidY, d_centroidZ, n, k);
+        cudaMemset(d_changesCount, 0, sizeof(int));
+        GetNearestCentroid<<<numberOfBlocks, blockSize>>>(d_ret, d_xs, d_ys, d_zs, d_centroidX, d_centroidY, d_centroidZ, n, k, d_changesCount);
+        cudaMemcpy(h_changesCount, d_changesCount, sizeof(int), cudaMemcpyDeviceToHost);
+
+        //printf("Changes: %d\n", *h_changesCount);
 
         cudaMemset(d_sumForCentroidsX, 0, k * sizeof(float));
         cudaMemset(d_sumForCentroidsY, 0, k * sizeof(float));
@@ -171,13 +185,6 @@ int* kMeansParallel(int k, int n, float* xs, float* ys, float* zs, float* startC
 
     int* h_ret = new int[n];
     cudaMemcpy(h_ret, d_ret, n * sizeof(int), cudaMemcpyDeviceToHost);
-
-
-    printf("Parallel result\n");
-    for (int i=0; i<n; i++)
-    {
-        printf("%d ", h_ret[i]);
-    }
 
     cudaFree(d_ret);
     cudaFree(d_xs);

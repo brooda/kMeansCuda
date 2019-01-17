@@ -6,7 +6,7 @@
 #include <math.h>
 
 
-int getIndexOfClosestCentroid(float x, float y, float z, float* centroidX, float* centroidY, float* centroidZ, int k)
+int getIndexOfClosestCentroid(float x, float y, float z, float* centroidX, float* centroidY, float* centroidZ, int k, int last, int* changes)
 {
     // Max float
     float minDist = 1000.0;
@@ -28,6 +28,10 @@ int getIndexOfClosestCentroid(float x, float y, float z, float* centroidX, float
     }
 
 
+    if (last != minDistInd)
+    {
+        (*changes)++;
+    }
     //printf("For point x: %f, y: %f, z: %f closest centroid is: %d \n", x, y, z, minDistInd);
 
     return minDistInd;
@@ -51,12 +55,18 @@ int* kMeans(int k, int n, float* xs, float* ys, float* zs, float* startCentroidX
         centroidZ[i] = startCentroidZ[i];
     }
 
-    for (int i=0; i<2; i++)
+    int changes = n/100 + 1;
+
+    while(changes > n/100)
     {
+        changes = 0;
+
         for (int j=0; j<n; j++)
         {
-            ret[j] = getIndexOfClosestCentroid(xs[j], ys[j], zs[j], centroidX, centroidY, centroidZ, k);
+            ret[j] = getIndexOfClosestCentroid(xs[j], ys[j], zs[j], centroidX, centroidY, centroidZ, k, ret[j], &changes);
         }
+
+        // printf("Changes: %d\n", changes);
 
         float* sumForCentroidsX = new float[k];
         float* sumForCentroidsY = new float[k];
@@ -99,14 +109,6 @@ int* kMeans(int k, int n, float* xs, float* ys, float* zs, float* startCentroidX
             }
         }
     }
-
-
-    printf("Sequentiall result\n");
-    for (int i=0; i<n; i++)
-    {
-        printf("%d ", ret[i]);
-    }
-
 
     return ret;
 }
