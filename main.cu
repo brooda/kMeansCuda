@@ -64,8 +64,7 @@ int main(int argc, char **argv) {
         startCentroidX[i] = randFloat(4);
         startCentroidY[i] = randFloat(4);
         startCentroidZ[i] = randFloat(4);
-
-        printf("Initial centroid: %f %f %f \n", startCentroidX[i], startCentroidY[i], startCentroidZ[i]);
+        //printf("Initial centroid: %f %f %f \n", startCentroidX[i], startCentroidY[i], startCentroidZ[i]);
     }
     printf("\n");
 
