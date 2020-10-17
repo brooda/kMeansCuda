@@ -1,5 +1,7 @@
 # Implementation of parallel K-means algorithm for CUDA
 
+If was an university project.
+
 ## Content of directory
 * classic.h - classical, sequential approach,
 * parallel.h - parallel approach for CUDA,
