@@ -8,7 +8,6 @@
 #include "parallel.h"
 
 float randFloat(float a) {
-    //srand((unsigned int) time(NULL));
     return ((float) rand() / (float) (RAND_MAX)) * a;
 }
 
@@ -64,7 +63,6 @@ int main(int argc, char **argv) {
         startCentroidX[i] = randFloat(4);
         startCentroidY[i] = randFloat(4);
         startCentroidZ[i] = randFloat(4);
-        //printf("Initial centroid: %f %f %f \n", startCentroidX[i], startCentroidY[i], startCentroidZ[i]);
     }
     printf("\n");
 

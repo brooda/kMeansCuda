@@ -32,7 +32,6 @@ int getIndexOfClosestCentroid(float x, float y, float z, float* centroidX, float
     {
         (*changes)++;
     }
-    //printf("For point x: %f, y: %f, z: %f closest centroid is: %d \n", x, y, z, minDistInd);
 
     return minDistInd;
 }
@@ -66,8 +65,6 @@ int* kMeans(int k, int n, float* xs, float* ys, float* zs, float* startCentroidX
             ret[j] = getIndexOfClosestCentroid(xs[j], ys[j], zs[j], centroidX, centroidY, centroidZ, k, ret[j], &changes);
         }
 
-        // printf("Changes: %d\n", changes);
-
         float* sumForCentroidsX = new float[k];
         float* sumForCentroidsY = new float[k];
         float* sumForCentroidsZ = new float[k];
@@ -80,7 +77,6 @@ int* kMeans(int k, int n, float* xs, float* ys, float* zs, float* startCentroidX
             sumForCentroidsZ[j] = 0;
             countsForCentroids[j] = 0;
         }
-
 
         for (int j=0; j<n; j++)
         {

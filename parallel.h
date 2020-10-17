@@ -41,9 +41,6 @@ __global__ void GetNearestCentroid(int* d_ret, float* d_xs, float* d_ys, float* 
             }
         }
 
-        //printf("For point x: %f, y: %f, z: %
-        // f closest centroid is: %d with dist %f \n", x, y, z, minDistInd, minDist);
-
         if (d_ret[i] != minDistInd)
         {
             d_ret[i] = minDistInd;
@@ -120,8 +117,6 @@ int* kMeansParallel(int k, int n, float* xs, float* ys, float* zs, float* startC
     float* d_countForCentroids;
     cudaMalloc((void**)&d_countForCentroids, k * sizeof(float));
 
-
-
     int blockSize = 512;
     int numberOfBlocks = n / blockSize;
 
@@ -146,8 +141,6 @@ int* kMeansParallel(int k, int n, float* xs, float* ys, float* zs, float* startC
         cudaMemset(d_changesCount, 0, sizeof(int));
         GetNearestCentroid<<<numberOfBlocks, blockSize>>>(d_ret, d_xs, d_ys, d_zs, d_centroidX, d_centroidY, d_centroidZ, n, k, d_changesCount);
         cudaMemcpy(h_changesCount, d_changesCount, sizeof(int), cudaMemcpyDeviceToHost);
-
-        //printf("Changes: %d\n", *h_changesCount);
 
         cudaMemset(d_sumForCentroidsX, 0, k * sizeof(float));
         cudaMemset(d_sumForCentroidsY, 0, k * sizeof(float));
@@ -197,7 +190,6 @@ int* kMeansParallel(int k, int n, float* xs, float* ys, float* zs, float* startC
     cudaFree(d_sumForCentroidsY);
     cudaFree(d_sumForCentroidsZ);
     cudaFree(d_countForCentroids);
-
 
     return h_ret;
 }
